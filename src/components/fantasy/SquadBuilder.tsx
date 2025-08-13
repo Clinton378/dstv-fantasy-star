@@ -44,20 +44,24 @@ export const SquadBuilder = () => {
   const [selected, setSelected] = useState<string[]>([]);
   const [starts, setStarts] = useState<Set<string>>(new Set());
 
+  const byId = useMemo(() => new Map(ALL_PLAYERS.map((p) => [p.id, p])), []);
+
   useEffect(() => {
     const saved = readState();
     if (saved) {
-      setSelected(saved.players);
-      setStarts(saved.starts);
+      // Filter out invalid player IDs that might exist from old data
+      const validPlayerIds = saved.players.filter(id => byId.has(id));
+      const validStarters = new Set(Array.from(saved.starts).filter(id => byId.has(id)));
+      
+      setSelected(validPlayerIds);
+      setStarts(validStarters);
       setFormation(saved.formation);
     }
-  }, []);
+  }, [byId]);
 
   useEffect(() => {
     writeState({ players: selected, starts, formation });
   }, [selected, starts, formation]);
-
-  const byId = useMemo(() => new Map(ALL_PLAYERS.map((p) => [p.id, p])), []);
 
   const budgetUsed = useMemo(() => selected.reduce((sum, id) => sum + (byId.get(id)?.price ?? 0), 0), [selected, byId]);
   const budgetLeft = +(SQUAD_LIMITS.budget - budgetUsed).toFixed(1);
@@ -108,13 +112,13 @@ export const SquadBuilder = () => {
 
   const toggleStart = (id: string) => {
     const p = byId.get(id);
-    if (!p) return;
+    if (!p) return; // Safety check
     const next = new Set(starts);
     if (next.has(id)) {
       next.delete(id);
     } else {
       // enforce formation counts and 11 starters
-      const current = Array.from(next).map((pid) => byId.get(pid)!.position);
+      const current = Array.from(next).map((pid) => byId.get(pid)).filter(Boolean).map(p => p!.position);
       const count: Record<Position, number> = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
       current.forEach((pos) => (count[pos]++));
       if (current.length >= 11) return;
@@ -139,7 +143,10 @@ export const SquadBuilder = () => {
   const startersCount = starts.size;
   const formationValid = (() => {
     const count: Record<Position, number> = { GK: 0, DEF: 0, MID: 0, FWD: 0 };
-    for (const id of starts) count[byId.get(id)!.position]++;
+    for (const id of starts) {
+      const player = byId.get(id);
+      if (player) count[player.position]++;
+    }
     return (
       count.GK === 1 &&
       count.DEF === formation.def &&
@@ -208,7 +215,8 @@ export const SquadBuilder = () => {
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {selected.map((id) => {
-                  const p = byId.get(id)!;
+                  const p = byId.get(id);
+                  if (!p) return null; // Skip invalid player IDs
                   const isStarting = starts.has(id);
                   return (
                     <Card key={id} className="p-3 flex items-center justify-between gap-3">
