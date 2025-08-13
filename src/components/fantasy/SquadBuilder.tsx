@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
 import { Player, Position, SQUAD_LIMITS, FORMATIONS, Formation } from "@/types/fantasy";
-import { PLAYERS } from "@/data/players";
+import { ALL_PLAYERS } from "@/data/players";
 import { PlayerCard } from "./PlayerCard";
 
 const STORAGE_KEY = "dstv-fantasy-squad-v1";
@@ -57,7 +57,7 @@ export const SquadBuilder = () => {
     writeState({ players: selected, starts, formation });
   }, [selected, starts, formation]);
 
-  const byId = useMemo(() => new Map(PLAYERS.map((p) => [p.id, p])), []);
+  const byId = useMemo(() => new Map(ALL_PLAYERS.map((p) => [p.id, p])), []);
 
   const budgetUsed = useMemo(() => selected.reduce((sum, id) => sum + (byId.get(id)?.price ?? 0), 0), [selected, byId]);
   const budgetLeft = +(SQUAD_LIMITS.budget - budgetUsed).toFixed(1);
@@ -128,7 +128,7 @@ export const SquadBuilder = () => {
   };
 
   const filtered = useMemo(() => {
-    return PLAYERS.filter((p) =>
+    return ALL_PLAYERS.filter((p) =>
       (posFilter === "ALL" || p.position === posFilter) &&
       (p.name.toLowerCase().includes(query.toLowerCase()) || p.team.toLowerCase().includes(query.toLowerCase()))
     );
@@ -155,13 +155,13 @@ export const SquadBuilder = () => {
         <Card className="p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="space-y-1">
-              <h2 className="text-xl font-semibold">Build your squad</h2>
-              <p className="text-sm text-muted-foreground">Budget R{SQUAD_LIMITS.budget}m • Max 3 per team</p>
+              <h2 className="text-xl font-semibold">Build your Betway Fantasy PSL squad</h2>
+              <p className="text-sm text-muted-foreground">Budget R{SQUAD_LIMITS.budget}M ZAR • Max 3 per PSL club</p>
             </div>
             <div className="flex items-center gap-3 text-sm">
               <span className="font-medium">Budget left:</span>
-              <span className={`px-2 py-1 rounded-md border ${budgetLeft < 0 ? "border-destructive text-destructive" : "border-border"}`}>
-                R{budgetLeft.toFixed(1)}m
+               <span className={`px-2 py-1 rounded-md border ${budgetLeft < 0 ? "border-destructive text-destructive" : "border-border"}`}>
+                R{budgetLeft.toFixed(1)}M
               </span>
             </div>
           </div>
@@ -270,12 +270,13 @@ export const SquadBuilder = () => {
         </Card>
 
         <Card className="p-4 text-sm text-muted-foreground">
-          <p className="mb-1 font-medium text-foreground">Rules snapshot</p>
+          <p className="mb-1 font-medium text-foreground">Betway Fantasy PSL Rules</p>
           <ul className="list-disc pl-5 space-y-1">
-            <li>15-man squad • R100.0m budget</li>
-            <li>Max 3 players per club</li>
-            <li>Valid XI: 1 GK, ≥3 DEF, ≥2 MID, ≥1 FWD</li>
-            <li>1 free transfer per gameweek</li>
+            <li>15-player squad • R100M ZAR budget</li>
+            <li>Max 3 players per PSL club</li>
+            <li>Valid XI: 1 GK, 3-5 DEF, 3-5 MID, 1-3 FWD</li>
+            <li>1 free transfer per gameweek (up to 5 saved)</li>
+            <li>Chips: Wildcard (2×), Triple Captain, Bench Boost, Free Hit</li>
           </ul>
         </Card>
       </div>

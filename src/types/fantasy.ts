@@ -43,5 +43,46 @@ export const SQUAD_LIMITS = {
   MID: 5,
   FWD: 3,
   teamMax: 3,
-  budget: 100,
+  budget: 100, // ZAR millions
+};
+
+// Scoring system based on Betway Fantasy PSL 2025/26 rules
+export const SCORING_SYSTEM = {
+  // Basic participation
+  playing: 1, // up to 60 minutes
+  playing60Plus: 2, // 60+ minutes
+  
+  // Goal scoring
+  goals: 6, // all positions
+  assists: 3, // all positions
+  
+  // Clean sheets (60+ minutes)
+  cleanSheetGKDEF: 4, // GK and DEF
+  cleanSheetMIDFWD: 1, // MID and FWD
+  
+  // Goalkeeping
+  penaltySaved: 5, // GK only
+  
+  // Penalties and discipline
+  penaltyMissed: -2,
+  yellowCard: -1,
+  redCard: -3,
+  ownGoal: -2,
+  
+  // Goals conceded (GK and DEF)
+  goalsConcededPer2: -1, // every 2 goals conceded
+  
+  // Defensive contributions (DEFCON)
+  defconPoint: 1, // 1 point per 10 CBIT, max 3 per game
+  defconMaxPerGame: 3,
+  
+  // Bonus points
+  bonusPoints: [3, 2, 1], // 1st, 2nd, 3rd best player in match
+  
+  // Transfer costs
+  transferCost: -4, // per additional transfer beyond free allocation
+  
+  // Free transfers
+  freeTransfersPerGameweek: 1,
+  maxSavedTransfers: 5, // resets after reaching 5
 };
